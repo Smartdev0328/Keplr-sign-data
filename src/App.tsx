@@ -1,30 +1,87 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { Keplr, Window as KeplrWindow, StdSignature } from '@keplr-wallet/types';
+import { cosmos, InstallError } from '@cosmostation/extension-client';
+import { Cosmos } from '@cosmostation/extension-client';
+
 declare global {
   interface Window extends KeplrWindow { }
 }
 
 function App() {
-  const [provider, setProvider] = useState<Keplr>()
+  const [provider, setProvider] = useState<Keplr | Cosmos>()
   const [signature, setSignature] = useState<StdSignature>();
-  const connectWallet = async () => {
-    await window.keplr?.enable("curium-9");
-    if (window.keplr) {
-      setProvider(window.keplr);
-      alert("wallet is connected")
+  const [wallet, setWallet] = useState<string>("");
+
+  const submitHandler = (e: any) => {
+    e.preventDefault()
+    connectWallet(e.target.wallet.value);
+    console.log(e.target.wallet.value)
+  }
+  const connectWallet = async (selectedWallet: string) => {
+    if (selectedWallet == "Keplr") {
+      await window.keplr?.enable("curium-9");
+      if (window.keplr) {
+        setProvider(window.keplr);
+        setWallet("Keplr")
+        alert("Keplr wallet is connected")
+      } else {
+        alert("please install Keplr wallet")
+      }
+    } else {
+      if ((window as any).cosmostation) {
+        const cosmostationProvider = await cosmos();
+        if (cosmostationProvider) {
+          setProvider(cosmostationProvider);
+          setWallet("Cosmostation")
+          alert("Cosmostation wallet is connected");
+        } else {
+          alert("please install Cosmostation wallet")
+        }
+      }
     }
   }
+
+  const getAddress = async () => {
+    if (wallet == "Keplr") {
+      return (await (provider as Keplr).getKey("curium-9")).bech32Address;
+    } else {
+      return (await (provider as Cosmos).getAccount("curium-9")).address;
+    }
+  }
+
+  const getSignFunction = () => {
+    if (wallet == "Keplr") {
+      return (provider as Keplr).signArbitrary;
+    } else {
+      return (provider as Cosmos).signMessage;
+    }
+  }
+
+
+  const getVerifyFunction = () => {
+    if (wallet == "Keplr") {
+      return (provider as Keplr).verifyArbitrary;
+    } else {
+      return (provider as Cosmos).verifyMessage;
+    }
+  }
+
   const signHandler = async () => {
     if (provider) {
-      const signer = await provider.getKey("curium-9");
-      const signedMsg = await provider.signArbitrary(
-        "curium-9",
-        signer.bech32Address,
-        "hello world."
-      )
-      setSignature(signedMsg);
-      alert(JSON.stringify(signedMsg));
+      const signerAddress = await getAddress();
+      const signFunction = getSignFunction();
+      try {
+        const signedMsg = await signFunction(
+          "curium-9",
+          signerAddress,
+          "hello world."
+        )
+        setSignature(signedMsg);
+        alert(JSON.stringify(signedMsg));
+      } catch (e) {
+        alert(e)
+      };
     }
     else {
       alert("wallet not connected")
@@ -33,11 +90,11 @@ function App() {
 
   const verifyHandler = async () => {
     if (provider && signature) {
-      const signer = (await provider.getKey("curium-9"));
-      console.log(signer)
-      const result = await provider.verifyArbitrary(
+      const signerAddress = await getAddress();
+      const verifyFunction = getVerifyFunction();
+      const result = await verifyFunction(
         "curium-9",
-        signer.bech32Address,
+        signerAddress,
         "hello world.",
         signature
       )
@@ -49,14 +106,22 @@ function App() {
       }
     }
     else {
-      alert("wallet not connected")
+      alert("wallet not connected or signature is not performed")
     }
   }
 
   return (
     <div className="App">
       <div className='App-header'>
-        <button onClick={connectWallet}>Connect Wallet</button>
+        <form onSubmit={submitHandler}>
+          <input type="radio" id="html" name="wallet" value="Keplr" defaultChecked />
+          <label htmlFor="html">Keplr</label>
+          <input type="radio" id="css" name="wallet" value="Cosmostation" />
+          <label htmlFor="css">Cosmostation</label>
+          <br></br>
+          <button>Connect Wallet</button>
+        </form>
+        <br />
         <button onClick={signHandler}>Sign</button>
         <button onClick={verifyHandler}>Verify</button>
       </div>
