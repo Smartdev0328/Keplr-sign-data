@@ -9,7 +9,7 @@ function App() {
   const [provider, setProvider] = useState<Keplr>()
   const [signature, setSignature] = useState<StdSignature>();
   const connectWallet = async () => {
-    await window.keplr?.enable("curium-1");
+    await window.keplr?.enable("curium-9");
     if (window.keplr) {
       setProvider(window.keplr);
       alert("wallet is connected")
@@ -17,7 +17,7 @@ function App() {
   }
   const signHandler = async () => {
     if (provider) {
-      const signer = await provider.getKey("curium-1");
+      const signer = await provider.getKey("curium-9");
       const signedMsg = await provider.signArbitrary(
         "curium-9",
         signer.bech32Address,
@@ -33,7 +33,7 @@ function App() {
 
   const verifyHandler = async () => {
     if (provider && signature) {
-      const signer = (await provider.getKey("curium-1"));
+      const signer = (await provider.getKey("curium-9"));
       console.log(signer)
       const result = await provider.verifyArbitrary(
         "curium-9",
