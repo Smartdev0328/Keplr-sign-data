@@ -19,7 +19,7 @@ function App() {
     if (provider) {
       const signer = await provider.getKey("curium-1");
       const signedMsg = await provider.signArbitrary(
-        "curium-1",
+        "curium-9",
         signer.bech32Address,
         "hello world."
       )
@@ -36,7 +36,7 @@ function App() {
       const signer = (await provider.getKey("curium-1"));
       console.log(signer)
       const result = await provider.verifyArbitrary(
-        "curium-1",
+        "curium-9",
         signer.bech32Address,
         "hello world.",
         signature
@@ -58,7 +58,7 @@ function App() {
       <div className='App-header'>
         <button onClick={connectWallet}>Connect Wallet</button>
         <button onClick={signHandler}>Sign</button>
-        <button onClick={verifyHandler}>Sign</button>
+        <button onClick={verifyHandler}>Verify</button>
       </div>
     </div>
   );
