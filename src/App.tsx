@@ -34,10 +34,30 @@ function App() {
         if (cosmostationProvider) {
           setProvider(cosmostationProvider);
           setWallet("Cosmostation")
+          // cosmostationProvider.addChain({
+          //   chainId: "bluzelle-9",
+          //   chainName: "Bluzelle",
+          //   addressPrefix: "bluzelle",
+          //   baseDenom: "ubnt",
+          //   displayDenom: "BNT",
+          //   restURL: "<REST URL>",
+          //   coinType: "483", // optional (default: '118')
+          //   decimals: 6, // optional (default: 6)
+          //   gasRate: {
+          //     // optional (default: { average: '0.025', low: '0.0025', tiny: '0.00025' })
+          //     average: "0.2",
+          //     low: "0.02",
+          //     tiny: "0.002",
+          //   },
+          //   sendGas: "80000", // optional (default: '100000')
+          //   type: "", // optional (default: '')
+          // });
           alert("Cosmostation wallet is connected");
         } else {
+
           alert("please install Cosmostation wallet")
         }
+
       }
     }
   }
@@ -46,6 +66,7 @@ function App() {
     if (wallet == "Keplr") {
       return (await (provider as Keplr).getKey("bluzelle-9")).bech32Address;
     } else {
+
       return (await (provider as Cosmos).getAccount("bluzelle-9")).address;
     }
   }
