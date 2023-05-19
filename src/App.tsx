@@ -20,7 +20,7 @@ function App() {
   }
   const connectWallet = async (selectedWallet: string) => {
     if (selectedWallet == "Keplr") {
-      await window.keplr?.enable("curium-9");
+      await window.keplr?.enable("bluzelle-9");
       if (window.keplr) {
         setProvider(window.keplr);
         setWallet("Keplr")
@@ -44,9 +44,9 @@ function App() {
 
   const getAddress = async () => {
     if (wallet == "Keplr") {
-      return (await (provider as Keplr).getKey("curium-9")).bech32Address;
+      return (await (provider as Keplr).getKey("bluzelle-9")).bech32Address;
     } else {
-      return (await (provider as Cosmos).getAccount("curium-9")).address;
+      return (await (provider as Cosmos).getAccount("bluzelle-9")).address;
     }
   }
 
@@ -73,7 +73,7 @@ function App() {
       const signFunction = getSignFunction();
       try {
         const signedMsg = await signFunction(
-          "curium-9",
+          "bluzelle-9",
           signerAddress,
           "hello world."
         )
@@ -93,7 +93,7 @@ function App() {
       const signerAddress = await getAddress();
       const verifyFunction = getVerifyFunction();
       const result = await verifyFunction(
-        "curium-9",
+        "bluzelle-9",
         signerAddress,
         "hello world.",
         signature
